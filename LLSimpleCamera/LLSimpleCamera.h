@@ -75,6 +75,18 @@ typedef enum : NSUInteger {
 @property (nonatomic) AVCaptureWhiteBalanceMode whiteBalanceMode;
 
 /**
+ * Boolean value to indicate if this controller should request microphone persmission when video is enabled.
+ * Default is YES.
+ */
+@property (nonatomic) BOOL asksForMicrophonePermission;
+
+/**
+ * Boolean value to indicate if audio should be recorded w/ video.
+ * Default is YES.
+ */
+@property (nonatomic) BOOL capturesAudio;
+
+/**
  * Boolean value to indicate if the video is enabled.
  */
 @property (nonatomic, getter=isVideoEnabled) BOOL videoEnabled;

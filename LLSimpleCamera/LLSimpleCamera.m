@@ -80,6 +80,8 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     _recording = NO;
     _zoomingEnabled = YES;
     _effectiveScale = 1.0f;
+    _asksForMicrophonePermission = YES;
+    _capturesAudio = YES;
 }
 
 - (void)viewDidLoad
@@ -165,7 +167,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     [LLSimpleCamera requestCameraPermission:^(BOOL granted) {
         if(granted) {
             // request microphone permission if video is enabled
-            if(self.videoEnabled) {
+            if(self.videoEnabled && self.asksForMicrophonePermission) {
                 [LLSimpleCamera requestMicrophonePermission:^(BOOL granted) {
                     if(granted) {
                         [self initialize];
@@ -249,12 +251,12 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
         }
         
         if([self.session canAddInput:_videoDeviceInput]) {
-            [self.session  addInput:_videoDeviceInput];
+            [self.session addInput:_videoDeviceInput];
 			self.captureVideoPreviewLayer.connection.videoOrientation = [self orientationForConnection];
         }
         
-        // add audio if video is enabled
-        if(self.videoEnabled) {
+        // add audio if `capturesAudio` is enabled
+        if (self.capturesAudio) {
             _audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
             _audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:_audioCaptureDevice error:&error];
             if (!_audioDeviceInput) {
@@ -262,11 +264,14 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
                     self.onError(self, error);
                 }
             }
-        
+            
             if([self.session canAddInput:_audioDeviceInput]) {
                 [self.session addInput:_audioDeviceInput];
             }
+        }
         
+        // add video output
+        if(self.videoEnabled) {
             _movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
             [_movieFileOutput setMovieFragmentInterval:kCMTimeInvalid];
             if([self.session canAddOutput:_movieFileOutput]) {
@@ -284,7 +289,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
         [self.session addOutput:self.stillImageOutput];
     }
     
-    //if we had disabled the connection on capture, re-enable it
+    // if we had disabled the connection on capture, re-enable it
     if (![self.captureVideoPreviewLayer.connection isEnabled]) {
         [self.captureVideoPreviewLayer.connection setEnabled:YES];
     }
