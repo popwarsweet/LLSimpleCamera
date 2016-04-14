@@ -49,6 +49,11 @@ typedef enum : NSUInteger {
 @property (nonatomic, copy) void (^onError)(LLSimpleCamera *camera, NSError *error);
 
 /**
+ * The main AVCaptureSession.
+ */
+@property (strong, nonatomic) AVCaptureSession *session;
+
+/**
  * Camera quality, set a constants prefixed with AVCaptureSessionPreset.
  * Make sure to call before calling -(void)initialize method, otherwise it would be late.
  */
